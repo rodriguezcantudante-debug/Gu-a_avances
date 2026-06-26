@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía de Entrevista — Flujo de Datos & Herramientas</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D1117;
+    --surface: #141A22;
+    --surface2: #1A212B;
+    --border: #232C38;
+    --border2: #2D3848;
+    --text: #ECEFF3;
+    --text2: #93A0AF;
+    --text3: #586473;
+    --green: #5FA88F;
+    --green-dim: rgba(95,168,143,0.12);
+    --amber: #D9A24B;
+    --amber-dim: rgba(217,162,75,0.12);
+    --blue: #5B8FD9;
+    --blue-dim: rgba(91,143,217,0.12);
+    --cyan: #4FB8C4;
+    --cyan-dim: rgba(79,184,196,0.12);
+    --red: #D9706B;
+    --red-dim: rgba(217,112,107,0.12);
+    --purple: #B68CF4;
+    --purple-dim: rgba(182,140,244,0.12);
+    --radius: 14px;
+    --radius-sm: 9px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: radial-gradient(circle at 10% 10%, rgba(95,168,143,0.06), transparent 38%),
+                       radial-gradient(circle at 90% 75%, rgba(91,143,217,0.05), transparent 40%);
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 1.5rem 5rem; position: relative; z-index: 1; }
+
+  /* HERO */
+  .hero { padding: 3rem 0 1.75rem; border-bottom: 1px solid var(--border); margin-bottom: 2.5rem; }
+  .hero-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--green); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+  .hero-tag::before { content: '●'; font-size: 8px; }
+  .hero h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(24px, 4vw, 38px); font-weight: 700; line-height: 1.15; margin-bottom: 0.85rem; letter-spacing: -0.02em; }
+  .hero h1 .hl { color: var(--green); }
+  .hero p { font-size: 14px; color: var(--text2); max-width: 660px; }
+
+  /* SECTION HEADERS */
+  .q-block { margin-bottom: 3.5rem; }
+  .q-num { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+  .q-title { font-family: 'Space Grotesk', sans-serif; font-size: 21px; font-weight: 700; margin-bottom: 0.35rem; letter-spacing: -0.01em; }
+  .q-subtitle { font-size: 13px; color: var(--text2); margin-bottom: 1.5rem; }
+
+  /* ANSWER BOX */
+  .answer-box { background: var(--surface2); border-left: 2.5px solid var(--green); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 1rem 1.2rem; margin: 1rem 0; font-size: 13.2px; color: var(--text2); line-height: 1.75; }
+  .answer-box strong { color: var(--text); }
+  .answer-label { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--green); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; display: block; }
+
+  /* CARD */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.4rem; margin-bottom: 0.85rem; }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 0.4rem; }
+  .card-body { font-size: 12.8px; color: var(--text2); line-height: 1.65; }
+  .card-body strong { color: var(--text); }
+
+  /* TAG */
+  .tag { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; padding: 3px 9px; border-radius: 5px; display: inline-block; margin-right: 5px; margin-top: 5px; }
+  .tag-semantic { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(217,162,75,0.3); }
+  .tag-pbi { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(91,143,217,0.3); }
+  .tag-looker { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(79,184,196,0.3); }
+  .tag-sql { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(91,143,217,0.25); }
+  .tag-nosql { background: var(--green-dim); color: var(--green); border: 1px solid rgba(95,168,143,0.25); }
+
+  /* DIAGNOSTIC CALLOUT */
+  .callout { background: var(--amber-dim); border-left: 3px solid var(--amber); border-radius: var(--radius-sm); padding: 0.9rem 1.2rem; margin: 1.25rem 0; font-size: 13px; color: var(--text2); }
+  .callout .callout-label { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--amber); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; display: block; }
+  .callout strong { color: var(--text); }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+  /* ── ORGANIGRAMA / PIPELINE ── */
+  .orgchart-wrap { margin: 1.75rem 0; }
+
+  /* top node */
+  .org-top { display: flex; justify-content: center; margin-bottom: 0; }
+  .org-node { border-radius: var(--radius-sm); padding: 0.7rem 1.1rem; font-size: 12.5px; font-weight: 600; text-align: center; min-width: 160px; }
+  .org-node-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.07em; opacity: 0.7; display: block; margin-bottom: 3px; }
+
+  .node-field   { background: rgba(95,168,143,0.15); border: 1.5px solid rgba(95,168,143,0.4); color: var(--green); }
+  .node-db      { background: rgba(217,162,75,0.13); border: 1.5px solid rgba(217,162,75,0.35); color: var(--amber); }
+  .node-csv     { background: rgba(86,86,86,0.2);   border: 1.5px solid #3a4455; color: var(--text2); }
+  .node-clean   { background: rgba(182,140,244,0.12); border: 1.5px solid rgba(182,140,244,0.35); color: var(--purple); }
+  .node-analysis{ background: rgba(79,184,196,0.12); border: 1.5px solid rgba(79,184,196,0.35); color: var(--cyan); }
+  .node-pbi     { background: rgba(91,143,217,0.14); border: 1.5px solid rgba(91,143,217,0.4); color: var(--blue); }
+  .node-looker  { background: rgba(79,184,196,0.14); border: 1.5px solid rgba(79,184,196,0.4); color: var(--cyan); }
+  .node-report  { background: rgba(95,168,143,0.1);  border: 1.5px solid rgba(95,168,143,0.3); color: var(--green); }
+
+  /* connector lines */
+  .org-connector { display: flex; justify-content: center; }
+  .org-vline { width: 2px; height: 22px; background: var(--border2); }
+  .org-hline-wrap { display: flex; justify-content: center; align-items: flex-start; gap: 0; margin-bottom: 0; }
+  .org-hline { height: 2px; background: var(--border2); flex: 1; margin-top: 0; }
+  .org-hline-center { width: 2px; height: 22px; background: var(--border2); }
+
+  /* row of nodes */
+  .org-row { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+  .org-col { display: flex; flex-direction: column; align-items: center; }
+  .org-branch { display: flex; flex-direction: column; align-items: center; }
+
+  /* semantic badge inside node */
+  .sem-badge { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 5px; }
+  .sem-1 { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(217,162,75,0.3); }
+  .sem-2 { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(91,143,217,0.3); }
+
+  /* pipe step list (alternative to org for linear flow) */
+  .pipe-list { display: flex; flex-direction: column; gap: 0; }
+  .pipe-row { display: grid; grid-template-columns: 28px 1fr; gap: 0.9rem; padding-bottom: 1.25rem; position: relative; }
+  .pipe-row:last-child { padding-bottom: 0; }
+  .pipe-row:not(:last-child)::before { content: ''; position: absolute; left: 13px; top: 28px; bottom: 2px; width: 1.5px; background: var(--border2); }
+  .pipe-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; flex-shrink: 0; z-index: 1; }
+  .dot-green  { background: rgba(95,168,143,0.15); border: 1.5px solid var(--green); color: var(--green); }
+  .dot-amber  { background: rgba(217,162,75,0.15); border: 1.5px solid var(--amber); color: var(--amber); }
+  .dot-gray   { background: var(--surface2); border: 1.5px solid var(--border2); color: var(--text3); }
+  .dot-purple { background: rgba(182,140,244,0.13); border: 1.5px solid var(--purple); color: var(--purple); }
+  .dot-cyan   { background: rgba(79,184,196,0.13); border: 1.5px solid var(--cyan); color: var(--cyan); }
+  .pipe-content { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.75rem 1rem; }
+  .pipe-title { font-size: 12.8px; font-weight: 600; color: var(--text); margin-bottom: 0.25rem; }
+  .pipe-desc { font-size: 12px; color: var(--text2); line-height: 1.55; }
+
+  /* TOOL COMPARE */
+  .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin: 1.1rem 0; }
+  @media(max-width:620px) { .tool-grid { grid-template-columns: 1fr; } }
+  .tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; }
+  .tool-card-head { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; margin-bottom: 0.6rem; }
+  .tool-card-head.pbi { color: var(--blue); }
+  .tool-card-head.looker { color: var(--cyan); }
+  .tool-card-body { font-size: 12.5px; color: var(--text2); line-height: 1.6; }
+  .tool-card-body strong { color: var(--text); }
+
+  /* CASE TABLE */
+  .case-table-wrap { margin: 1.25rem 0; overflow-x: auto; }
+  .case-table { width: 100%; border-collapse: collapse; font-size: 12.3px; }
+  .case-table th { background: var(--surface2); color: var(--text); padding: 9px 12px; text-align: left; font-size: 11px; font-weight: 600; border-bottom: 1px solid var(--border2); white-space: nowrap; }
+  .case-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+  .case-table tr:last-child td { border-bottom: none; }
+  .case-table .sql-tag  { color: var(--blue); font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; }
+  .case-table .nosql-tag { color: var(--green); font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; }
+  .case-table .common-sql { color: var(--blue); font-size: 11.5px; }
+  .case-table .common-nosql { color: var(--green); font-size: 11.5px; }
+
+  /* POSSIBLE QUESTIONS SECTION HEADER */
+  .section-divider { display: flex; align-items: center; gap: 1rem; margin: 3rem 0 2rem; }
+  .section-divider-line { flex: 1; height: 1px; background: var(--border); }
+  .section-divider-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
+
+  .footnote { font-size: 11.5px; color: var(--text3); text-align: center; padding-top: 1.75rem; border-top: 1px solid var(--border); margin-top: 1rem; }
+
+  /* TAB NAV - sticky */
+  .tabnav-outer { position: sticky; top: 0; background: var(--bg); z-index: 10; padding: 1rem 0; margin-bottom: 2rem; border-bottom: 1px solid var(--border); }
+  .tabnav { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tabnav button { font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 500; color: var(--text2); background: var(--surface); border: 1px solid var(--border); padding: 8px 14px; border-radius: 999px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .tabnav button:hover { color: var(--text); border-color: var(--border2); }
+  .tabnav button.active { color: var(--bg); background: var(--green); border-color: var(--green); font-weight: 600; }
+
+  .tabpanel { display: none; }
+  .tabpanel.active { display: block; animation: fadein 0.25s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Guía de entrevista · preguntas clave</div>
+    <h1>De dónde vienen mis datos,<br>qué hago con ellos <span class="hl">y por qué así</span></h1>
+    <p>Respuestas estructuradas para la entrevista: flujo de información, capas semánticas, elección de herramienta y criterio SQL vs NoSQL — todo conectado a tu trabajo real.</p>
+  </div>
+
+  <div class="tabnav-outer">
+    <div class="tabnav">
+      <button class="active" onclick="showTab('p1')">01 · Mi trabajo</button>
+      <button onclick="showTab('p2')">02 · Herramientas de presentación</button>
+      <button onclick="showTab('p3')">03 · Casos</button>
+      <button onclick="showTab('s4')">04 · Banco de preguntas</button>
+      <button onclick="showTab('s5')">05 · Desempeño</button>
+      <button onclick="showTab('s6')">06 · Resumen</button>
+    </div>
+  </div>
+
+  <div id="tab-p1" class="tabpanel active">
+    <!-- ════════ PREGUNTA 1 ════════ -->
+  <div class="q-block">
+    <div class="q-num">Pregunta 01</div>
+    <div class="q-title">¿De dónde obtienes la información que usas y qué haces con ella?</div>
+    <div class="q-subtitle">Flujo completo + capas semánticas + por qué Power BI al final</div>
+
+    <!-- ORGANIGRAMA / PIPELINE -->
+    <div class="orgchart-wrap">
+
+      <!-- Step 1: Captura -->
+      <div class="org-top">
+        <div class="org-col">
+          <div class="org-node node-field">
+            <span class="org-node-label">Origen</span>
+            Captura en campo
+          </div>
+          <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:5px;max-width:220px;">
+            Formatos socioeconómicos (personal, económica, laboral, familiar, alimentación)<br>
+            vía plataforma sobre VIA — sistema de diseño web del estado
+          </div>
+        </div>
+      </div>
+
+      <!-- connector -->
+      <div class="org-connector"><div class="org-vline" style="height:30px;"></div></div>
+
+      <!-- Step 2: BD con glosario → CAPA SEMÁNTICA #1 -->
+      <div class="org-top">
+        <div class="org-col">
+          <div class="org-node node-db">
+            <span class="org-node-label">Almacenamiento</span>
+            Base de datos + Glosario de variables
+            <span class="sem-badge sem-1">⬡ capa semántica #1</span>
+          </div>
+          <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:5px;max-width:260px;">
+            Glosario define el significado de cada variable antes de que yo la use.<br>
+            Lo construyó otra Secretaría (Tecnología) — me llega dado.
+          </div>
+        </div>
+      </div>
+
+      <!-- connector -->
+      <div class="org-connector"><div class="org-vline" style="height:30px;"></div></div>
+
+      <!-- Step 3: Descarga CSV -->
+      <div class="org-top">
+        <div class="org-col">
+          <div class="org-node node-csv">
+            <span class="org-node-label">Extracción</span>
+            Descarga CSV — Sec. de Tecnología
+          </div>
+          <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:5px;">
+            Archivo estructurado, listo para procesar
+          </div>
+        </div>
+      </div>
+
+      <!-- connector -->
+      <div class="org-connector"><div class="org-vline" style="height:30px;"></div></div>
+
+      <!-- Step 4: Limpieza -->
+      <div class="org-top">
+        <div class="org-col">
+          <div class="org-node node-clean">
+            <span class="org-node-label">Procesamiento</span>
+            Excel + Python / R → Limpieza
+          </div>
+          <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:5px;max-width:260px;">
+            Manipulación inicial en Excel, limpieza profunda y homologación con código
+          </div>
+        </div>
+      </div>
+
+      <!-- connector -->
+      <div class="org-connector"><div class="org-vline" style="height:30px;"></div></div>
+
+      <!-- Step 5: Análisis -->
+      <div class="org-top">
+        <div class="org-col">
+          <div class="org-node node-analysis">
+            <span class="org-node-label">Análisis</span>
+            Clustering + tendencias + estatus de pobreza
+          </div>
+          <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:5px;max-width:280px;">
+            Identifico patrones, comparo municipios, agripo características de beneficiarios
+          </div>
+        </div>
+      </div>
+
+      <!-- connector: fork hacia 2 herramientas -->
+      <div class="org-connector"><div class="org-vline" style="height:20px;"></div></div>
+      <div style="display:flex;justify-content:center;">
+        <div style="width:200px;height:2px;background:var(--border2);"></div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:160px;margin-bottom:2px;">
+        <div style="width:2px;height:18px;background:var(--border2);"></div>
+        <div style="width:2px;height:18px;background:var(--border2);"></div>
+      </div>
+
+      <!-- Step 6: PBI y Looker -->
+      <div class="org-row" style="gap:1.5rem;align-items:flex-start;">
+        <div class="org-col">
+          <div class="org-node node-pbi" style="min-width:190px;">
+            <span class="org-node-label">Seguimiento continuo</span>
+            Power BI
+            <span class="sem-badge sem-2">⬡ capa semántica #2</span>
+          </div>
+          <div style="font-size:10.5px;color:var(--text3);text-align:center;margin-top:5px;max-width:200px;">
+            Modelo semántico que yo construyo.<br>Reutilizable con cada nueva base.
+          </div>
+        </div>
+        <div class="org-col">
+          <div class="org-node node-looker" style="min-width:190px;">
+            <span class="org-node-label">Levantamiento urgente</span>
+            Looker Studio
+          </div>
+          <div style="font-size:10.5px;color:var(--text3);text-align:center;margin-top:5px;max-width:200px;">
+            Datos nuevos, sin modelo previo.<br>Google Forms → Sheets → visual rápido.
+          </div>
+        </div>
+      </div>
+
+      <!-- connector: ambos al reporte final -->
+      <div style="display:flex;justify-content:center;gap:160px;margin-top:2px;">
+        <div style="width:2px;height:18px;background:var(--border2);"></div>
+        <div style="width:2px;height:18px;background:var(--border2);"></div>
+      </div>
+      <div style="display:flex;justify-content:center;">
+        <div style="width:200px;height:2px;background:var(--border2);"></div>
+      </div>
+      <div class="org-connector"><div class="org-vline" style="height:18px;"></div></div>
+
+      <div class="org-top">
+        <div class="org-col">
+          <div class="org-node node-report">
+            <span class="org-node-label">Entregable</span>
+            Reporte a junta directiva / autoridades
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end organigrama -->
+
+    <!-- RESPUESTA EN VOZ DE ENTREVISTA -->
+    <div class="answer-box" style="margin-top:1.5rem;">
+      <span class="answer-label">Cómo lo dirías en la entrevista</span>
+      Trabajo con datos socioeconómicos de personas que solicitan apoyo del gobierno. La información se captura en campo mediante formatos estructurados — personales, económicos, laborales, familiares y alimentarios — a través de una plataforma construida sobre VIA, el sistema de diseño web del estado.<br><br>
+      Esa información cae en una base de datos que tiene su propio <strong>glosario de variables</strong> — eso ya es una primera capa semántica: define qué significa cada campo antes de que yo lo use. Desde ahí la Secretaría de Tecnología me entrega un CSV que proceso en Excel y código para limpiar, homologar y preparar.<br><br>
+      Con ese dato limpio identifico patrones con clustering, comparo municipios y detecto tendencias. Para presentarlo <strong>elijo la herramienta según el patrón de uso</strong>: si es seguimiento continuo — beneficiarios, ubicación, tipo de apoyo — uso <strong>Power BI</strong>, porque construyo un modelo semántico una sola vez y cada nueva base que cargue con la misma estructura se interpreta automáticamente igual, sin rehacer el reporte. Si es un levantamiento urgente nuevo — como datos de un desastre natural capturados con Google Forms — uso <strong>Looker Studio</strong>, porque la conexión es inmediata, gratuita y suficiente para ese caso sin sobrecarga de modelo.
+    </div>
+
+    <!-- CAPAS SEMÁNTICAS CARD -->
+    <div style="margin-top:1.25rem;">
+      <div class="card" style="border-color:rgba(217,162,75,0.3);">
+        <div class="card-title">Capa semántica #1 — la que viene dada (glosario de origen)</div>
+        <div class="card-body">
+          El glosario de variables de la base de datos define el significado de cada campo <strong>antes</strong> de que el dato llegue a mí — es la capa semántica "de origen", construida por la Secretaría de Tecnología. Lo consulto cada vez que cargo una base nueva para asegurarme de que mi interpretación no se desalinee de la fuente.
+          <span class="tag tag-semantic">semántica de origen</span>
+        </div>
+      </div>
+      <div class="card" style="border-color:rgba(91,143,217,0.3);">
+        <div class="card-title">Capa semántica #2 — la que yo construyo en Power BI</div>
+        <div class="card-body">
+          Cuando defino medidas DAX, relaciones y columnas calculadas en mi modelo de Power BI, estoy creando una segunda capa semántica: le digo al sistema una sola vez qué significa "estatus de pobreza", "tipo de apoyo" o "ubicación del beneficiario". Cada nueva base que cargue con esa misma estructura se interpreta automáticamente igual, sin reinventar el reporte. Uso Power BI exactamente por esto: necesito que esa lógica sea consistente reporte tras reporte — y que varias personas en la Secretaría vean el mismo número con la misma definición.
+          <span class="tag tag-pbi">Power BI</span><span class="tag tag-semantic">modelo semántico</span>
+        </div>
+      </div>
+      <div class="card" style="border-color:rgba(217,162,75,0.25);">
+        <div class="card-title">Por qué Looker Studio en el otro caso</div>
+        <div class="card-body">
+          En levantamientos extraordinarios — post-desastre, información capturada con Google Forms — la estructura de datos es nueva y única: no tiene un modelo semántico previo al que conectarse, ni lo necesita. Forzarlo a Power BI sería más lento. Looker Studio conecta directamente a Google Sheets, no tiene costo y es suficiente para presentar visualmente en horas. La decisión es de velocidad y proporcionalidad: no construyo gobernanza donde no hay datos que gobernar.
+          <span class="tag tag-looker">Looker Studio</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div id="tab-p2" class="tabpanel">
+    <!-- ════════ PREGUNTA 2 ════════ -->
+  <div class="q-block">
+    <div class="q-num">Pregunta 02</div>
+    <div class="q-title">¿Por qué Power BI te conviene — y por qué Looker Studio también, para otro caso?</div>
+    <div class="q-subtitle">Herramienta correcta según el patrón de uso, no por preferencia</div>
+
+    <div class="tool-grid">
+      <div class="tool-card">
+        <div class="tool-card-head pbi">Power BI</div>
+        <div class="tool-card-body">
+          Lo uso para <strong>seguimiento longitudinal</strong>: el mismo conjunto de métricas se actualiza periódicamente con nuevas bases de la misma estructura. Defino la lógica una sola vez en el modelo y reutilizo sin reconstruir — consistencia garantizada para todos los que consultan el reporte.
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-card-head looker">Looker Studio</div>
+        <div class="tool-card-body">
+          Lo uso cuando hay <strong>urgencia + estructura nueva + costo cero</strong>: datos de un levantamiento extraordinario capturados con Google Forms. Conectar directamente a Google Sheets es más rápido que construir un modelo que en ese caso no se va a reutilizar.
+        </div>
+      </div>
+    </div>
+
+    <div class="answer-box">
+      <span class="answer-label">Cómo lo dirías en la entrevista</span>
+      "Elijo la herramienta según el patrón de uso: si necesito que una métrica sea consistente reporte tras reporte con datos que se actualizan periódicamente, uso Power BI porque centraliza esa lógica una sola vez. Si necesito presentar algo nuevo y urgente sin un modelo previo, como un levantamiento de desastre, uso Looker Studio porque es más rápido de armar y no tiene costo."
+    </div>
+  </div>
+  </div>
+
+  <div id="tab-p3" class="tabpanel">
+    <!-- ════════ PREGUNTA 3 ════════ -->
+  <div class="q-block">
+    <div class="q-num">Pregunta 03</div>
+    <div class="q-title">¿Cómo identificarías si usar SQL o NoSQL para el caso de un cliente?</div>
+    <div class="q-subtitle">Criterio diagnóstico + banco de casos clasificados</div>
+
+    <!-- PREGUNTA DIAGNÓSTICA -->
+    <div class="callout">
+      <span class="callout-label">Pregunta diagnóstica — la que te lo resuelve siempre</span>
+      ¿La información del cliente tiene <strong>siempre la misma forma</strong> y necesita cruzarse con precisión? → <span style="color:var(--blue);font-weight:600;">SQL</span><br>
+      ¿Cada registro es <strong>distinto</strong> entre sí y lo que más importa es velocidad a gran escala o estructura variable? → <span style="color:var(--green);font-weight:600;">NoSQL</span>
+    </div>
+
+    <div class="answer-box">
+      <span class="answer-label">Cómo lo dirías en la entrevista</span>
+      "Le preguntaría qué tipo de información maneja: si todos los registros tienen la misma forma y necesita cruzarlos con precisión — como un negocio con tarifas por cliente — usaría SQL. Si cada registro es distinto entre sí y lo más importante es la velocidad a gran escala — como un chat donde cada mensaje puede ser texto, foto o video — usaría NoSQL."
+    </div>
+
+    <!-- TABLA DE CASOS -->
+    <div style="margin-top:1.5rem;">
+      <div class="card-title" style="margin-bottom:0.6rem;">Banco de casos rápidos — qué tienen en común</div>
+      <div class="case-table-wrap">
+        <table class="case-table">
+          <thead>
+            <tr>
+              <th>Caso</th>
+              <th>Decisión</th>
+              <th>Señal clave</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- SQL group -->
+            <tr>
+              <td>Consultorio dental — historial, citas y pagos</td>
+              <td><span class="sql-tag">SQL</span></td>
+              <td>Misma estructura para todos; necesita cruzar tablas</td>
+            </tr>
+            <tr>
+              <td>Banco que procesa transferencias entre cuentas</td>
+              <td><span class="sql-tag">SQL</span></td>
+              <td>Cero tolerancia a dato incompleto → ACID obligatorio</td>
+            </tr>
+            <tr>
+              <td>Aerolínea — asientos en tiempo real, sin vender el mismo dos veces</td>
+              <td><span class="sql-tag">SQL</span></td>
+              <td>Consistencia gana sobre velocidad</td>
+            </tr>
+            <tr>
+              <td>Negocio de tuberías — tarifas especiales por cliente y tipo</td>
+              <td><span class="sql-tag">SQL</span></td>
+              <td>Misma forma siempre + exactitud en el cobro</td>
+            </tr>
+            <!-- Separator row -->
+            <tr>
+              <td colspan="3" style="padding:4px 12px;background:var(--surface2);">
+                <div style="display:flex;gap:2rem;flex-wrap:wrap;padding:6px 0;">
+                  <div class="common-sql">
+                    <strong>Lo que tienen en común los casos SQL:</strong><br>
+                    estructura uniforme · cruces entre tablas · consistencia crítica · cambios que deben reflejarse en un solo lugar
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <!-- NoSQL group -->
+            <tr>
+              <td>App de delivery — ubicación del repartidor cada 2 segundos</td>
+              <td><span class="nosql-tag">NoSQL</span></td>
+              <td>Volumen masivo de escritura constante, no necesita historial relacional</td>
+            </tr>
+            <tr>
+              <td>Red social — "amigos en común" y "gente que quizá conozcas"</td>
+              <td><span class="nosql-tag">NoSQL (grafos)</span></td>
+              <td>La pregunta es sobre conexiones, no sobre registros individuales</td>
+            </tr>
+            <tr>
+              <td>Chat — mensajes de texto, foto, video, audio, todos distintos</td>
+              <td><span class="nosql-tag">NoSQL</span></td>
+              <td>Cada registro tiene forma diferente + velocidad a gran escala</td>
+            </tr>
+            <tr>
+              <td>Startup que no sabe qué forma tendrán sus datos a futuro</td>
+              <td><span class="nosql-tag">NoSQL</span></td>
+              <td>Incertidumbre sobre estructura futura pesa más que relaciones complejas hoy</td>
+            </tr>
+            <!-- Separator row -->
+            <tr>
+              <td colspan="3" style="padding:4px 12px;background:var(--surface2);">
+                <div style="display:flex;gap:2rem;flex-wrap:wrap;padding:6px 0;">
+                  <div class="common-nosql">
+                    <strong>Lo que tienen en común los casos NoSQL:</strong><br>
+                    estructura variable o desconocida · volumen masivo / alta velocidad de escritura · registros que no siguen la misma forma · relaciones entre objetos (grafos)
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:1.25rem;">
+      <span class="callout-label">Pregunta diagnóstica para el cliente (úsala en voz alta)</span>
+      "¿Cuántos tipos distintos de registro tienes? ¿Necesitas cruzar esa información para tomar decisiones exactas — como cobrar o registrar una transacción — o lo que más te importa es escribir y leer muy rápido a escala?"<br><br>
+      Si la respuesta apunta a <strong>precisión + relaciones entre tablas</strong> → SQL.<br>
+      Si apunta a <strong>velocidad + variedad de estructura + escala</strong> → NoSQL.
+    </div>
+  </div>
+  </div>
+
+  <div id="tab-s4" class="tabpanel">
+    <!-- INTRO BANCO -->
+  <div style="margin-bottom:2.5rem;">
+    <div class="q-num">Sección 4</div>
+    <div class="q-title" style="font-size:22px;">Las 7 preguntas, explicadas a fondo</div>
+    <div class="q-subtitle">Cada pregunta incluye: por qué se hace, tu respuesta aplicada a tu trabajo real, y una pregunta de seguimiento con respuesta rápida lista para usar.</div>
+  </div>
+
+  <!-- ── PREGUNTA BANCO 01 ── -->
+  <div class="q-block">
+    <div class="q-num">Banco 01</div>
+    <div class="q-title">¿Qué es normalización y cuándo la rompes (denormalizas)?</div>
+
+    <div class="callout">
+      <span class="callout-label">Por qué se pregunta</span>
+      Evalúa si entiendes que el diseño de una base de datos no es un dogma, sino una decisión de trade-off: <strong>normalizar</strong> evita redundancia; <strong>denormalizar</strong> permite leer más rápido. Un analista junior memoriza la regla; uno senior sabe cuándo romperla.
+    </div>
+
+    <div class="answer-box">
+      <span class="answer-label">Tu respuesta aplicada</span>
+      "En mi trabajo, la base de origen ya viene normalizada — separa información personal, económica, laboral y familiar en distintos bloques con su propio glosario. Pero cuando preparo mis reportes de Power BI, deliberadamente <strong>denormalizo</strong>: uno la información de varias tablas en una sola base ancha por beneficiario, porque necesito que el dashboard responda rápido cuando alguien filtra por municipio o tipo de apoyo, y prefiero repetir algunos datos a tener que hacer cruces complejos cada vez que se actualiza el reporte."
+    </div>
+
+    <div class="card" style="border-color:rgba(217,112,107,0.3);">
+      <div class="card-title" style="color:var(--red);">↳ Pregunta de seguimiento</div>
+      <div class="card-body" style="font-style:italic;margin-bottom:0.6rem;">"¿Qué pasaría si el nombre de un municipio cambiara después de que ya denormalizaste?"</div>
+      <div class="card-body"><strong>Respuesta rápida:</strong> "Actualizaría la tabla fuente y volvería a generar la base ancha desde ahí — no editaría el dashboard manualmente, para que el cambio quede registrado en el origen y no cree inconsistencias en otros reportes que usen el mismo dato."</div>
+    </div>
+  </div>
+
+  <!-- ── PREGUNTA BANCO 02 ── -->
+  <div class="q-block">
+    <div class="q-num">Banco 02</div>
+    <div class="q-title">¿Cómo diseñarías el modelo de datos para [negocio X que te describan en vivo]?</div>
+
+    <div class="callout">
+      <span class="callout-label">Por qué se pregunta</span>
+      Quieren ver tu proceso de pensamiento en tiempo real, no una respuesta memorizada. El objetivo es que <strong>identifiques entidades, relaciones y si conviene SQL o NoSQL</strong> ante un caso que nunca habías escuchado, pensando en voz alta.
+    </div>
+
+    <div class="answer-box">
+      <span class="answer-label">Tu respuesta aplicada</span>
+      "Mi forma de abordarlo es la misma que uso en mi trabajo: primero identifico las entidades — en mi caso, Beneficiario, Solicitud, Tipo de Apoyo, Ubicación — y cómo se relacionan entre sí. Si la estructura es predecible y necesito cruzar esas entidades para sacar reportes, uso SQL. Para cualquier caso nuevo que me describan, aplicaría exactamente ese mismo proceso: <strong>entidades primero, relaciones después</strong>, y decido la tecnología según si la forma de los datos es fija o cambia caso por caso."
+    </div>
+
+    <div class="card" style="border-color:rgba(217,112,107,0.3);">
+      <div class="card-title" style="color:var(--red);">↳ Pregunta de seguimiento</div>
+      <div class="card-body" style="font-style:italic;margin-bottom:0.6rem;">"Te describo en este momento: una cadena de gimnasios con membresías y clases — ¿cómo lo modelarías?"</div>
+      <div class="card-body"><strong>Respuesta rápida:</strong> "Entidades: Socio, Membresía, Clase, Instructor, Asistencia. Relaciones: un Socio tiene una Membresía activa, una Clase tiene un Instructor y muchos Socios pueden asistir (muchos a muchos). La estructura es fija y necesito cruzarla para cobrar y reportar asistencia → SQL."</div>
+    </div>
+  </div>
+
+  <!-- ── PREGUNTA BANCO 03 ── -->
+  <div class="q-block">
+    <div class="q-num">Banco 03</div>
+    <div class="q-title">¿Cómo manejas datos faltantes o de mala calidad?</div>
+
+    <div class="callout">
+      <span class="callout-label">Por qué se pregunta</span>
+      Es una pregunta de rigor estadístico disfrazada de pregunta técnica. Quieren saber si entiendes que <strong>rellenar datos faltantes con valores inventados puede distorsionar un análisis completo</strong>, especialmente en datos sociales donde un campo vacío puede significar algo real.
+    </div>
+
+    <div class="answer-box">
+      <span class="answer-label">Tu respuesta aplicada</span>
+      "En información socioeconómica, un campo vacío casi nunca es aleatorio. Por ejemplo, si alguien no reporta ingreso laboral, puede ser porque no tiene empleo formal, no porque el dato se perdió. Entonces <strong>no relleno con cero ni con un promedio</strong>: lo dejo como dato faltante explícito y lo reporto aparte, porque tratarlo como cero distorsionaría mis cálculos de estatus de pobreza."
+    </div>
+
+    <div class="card" style="border-color:rgba(217,112,107,0.3);">
+      <div class="card-title" style="color:var(--red);">↳ Pregunta de seguimiento</div>
+      <div class="card-body" style="font-style:italic;margin-bottom:0.6rem;">"¿Cómo lo mostrarías en un dashboard sin que parezca un error del sistema?"</div>
+      <div class="card-body"><strong>Respuesta rápida:</strong> "Usaría una categoría visible tipo 'No reportado' en el filtro o en la leyenda, en vez de dejar el espacio en blanco o un cero que parezca un error. Así el usuario entiende que es información real, no un fallo técnico."</div>
+    </div>
+  </div>
+
+  <!-- ── PREGUNTA BANCO 04 ── -->
+  <div class="q-block">
+    <div class="q-num">Banco 04</div>
+    <div class="q-title">Dos fuentes de datos no coinciden — ¿qué haces?</div>
+    <div class="q-subtitle">Ej. Google Ads dice 1,000 clics, tu base dice 950</div>
+
+    <div class="callout">
+      <span class="callout-label">Por qué se pregunta</span>
+      Muy común en roles de Ads/Marketing/Producto, porque casi siempre hay más de una plataforma reportando la misma métrica con definiciones distintas. Evalúa si tu primer instinto es <strong>buscar la causa</strong> o simplemente confiar en el número más alto.
+    </div>
+
+    <div class="answer-box">
+      <span class="answer-label">Tu respuesta aplicada</span>
+      "Esto me pasa cuando comparo el padrón original contra mi base ya procesada — si el conteo de beneficiarios no coincide, primero reviso si hubo un <strong>corte de fecha distinto</strong> entre cuándo se descargó cada archivo, después si hay <strong>duplicados</strong> de personas con más de una solicitud, y solo al final asumo que hay un error real de captura. Nunca confío en el número más alto sin antes entender la diferencia."
+    </div>
+
+    <div class="card" style="border-color:rgba(217,112,107,0.3);">
+      <div class="card-title" style="color:var(--red);">↳ Pregunta de seguimiento</div>
+      <div class="card-body" style="font-style:italic;margin-bottom:0.6rem;">"¿Cómo documentarías esa discrepancia para que no se repita la próxima vez?"</div>
+      <div class="card-body"><strong>Respuesta rápida:</strong> "Dejaría una nota junto al reporte con la causa identificada, la fecha, y qué archivo se usó como fuente definitiva — no solo corrijo el número en silencio, porque la próxima persona que vea el reporte necesita saber por qué hay una diferencia registrada."</div>
+    </div>
+  </div>
+
+  <!-- ── PREGUNTA BANCO 05 ── -->
+  <div class="q-block">
+    <div class="q-num">Banco 05</div>
+    <div class="q-title">¿Cómo le explicarías una métrica compleja a alguien no técnico?</div>
+
+    <div class="callout">
+      <span class="callout-label">Por qué se pregunta</span>
+      En un rol como APMM, vas a estar entre personas de negocio y equipos técnicos constantemente. Esta pregunta evalúa <strong>comunicación</strong>, no SQL. El error más común es empezar con el método en vez de con la decisión que ese método ayuda a tomar.
+    </div>
+
+    <div class="answer-box">
+      <span class="answer-label">Tu respuesta aplicada</span>
+      "Cuando presento clusters de beneficiarios a la junta, no hablo de 'agrupación por características multivariadas' — digo algo como: <strong>'identificamos tres grupos de familias con necesidades distintas: unas que necesitan apoyo alimentario urgente, otras que ya tienen alimentación cubierta pero les falta empleo, y otras en transición'</strong>. Traduzco el resultado técnico a una decisión que la junta pueda tomar."
+    </div>
+
+    <div class="card" style="border-color:rgba(217,112,107,0.3);">
+      <div class="card-title" style="color:var(--red);">↳ Pregunta de seguimiento</div>
+      <div class="card-body" style="font-style:italic;margin-bottom:0.6rem;">"Dame un ejemplo de cuando alguien no entendió tu explicación la primera vez — ¿qué cambiaste?"</div>
+      <div class="card-body"><strong>Respuesta rápida:</strong> Ten listo un ejemplo real. El patrón de respuesta es: "la primera vez expliqué el proceso; cuando noté que no conectaba, cambié a mostrar el resultado directamente — quién cambia, dónde, cuánto — y arranqué de ahí."</div>
+    </div>
+  </div>
+
+  <!-- ── PREGUNTA BANCO 06 ── -->
+  <div class="q-block">
+    <div class="q-num">Banco 06</div>
+    <div class="q-title">Cuéntame de una vez que tomaste una decisión basada en datos que resultó equivocada.</div>
+
+    <div class="callout">
+      <span class="callout-label">Por qué se pregunta</span>
+      Pregunta de comportamiento formato STAR conectada a datos. Evalúa <strong>honestidad y capacidad de aprender</strong>, no perfección. Google explícitamente busca "intellectual humility" como parte de lo que llaman Googleyness. El error correcto a contar es uno real, con una causa clara, y sobre todo con un cambio de proceso después.
+    </div>
+
+    <div class="answer-box">
+      <span class="answer-label">Marco para armar tu respuesta (llénalo con tu caso real)</span>
+      <strong>Situación:</strong> describe el reporte o análisis específico.<br><br>
+      <strong>Tarea:</strong> qué decisión se tomó con base en ese análisis.<br><br>
+      <strong>Acción:</strong> qué hiciste cuando notaste el error — ¿fue un dato mal limpiado, una comparación entre periodos no equivalentes?<br><br>
+      <strong>Resultado:</strong> qué cambiaste en tu proceso después — por ejemplo, agregar una validación extra antes de presentar a la junta.
+    </div>
+
+    <div class="card" style="border-color:rgba(217,112,107,0.3);">
+      <div class="card-title" style="color:var(--red);">↳ Pregunta de seguimiento</div>
+      <div class="card-body" style="font-style:italic;margin-bottom:0.6rem;">"¿Cómo te asegurarías de que ese mismo error no vuelva a pasar?"</div>
+      <div class="card-body"><strong>Respuesta rápida:</strong> La respuesta debe apuntar a un proceso o checklist concreto — por ejemplo: "ahora comparo el total de registros del CSV original contra el de mi base limpia antes de cualquier análisis, como paso obligatorio antes de presentar". No es "tener más cuidado" — es un paso nuevo en el flujo.</div>
+    </div>
+  </div>
+
+  <!-- ── PREGUNTA BANCO 07 ── -->
+  <div class="q-block">
+    <div class="q-num">Banco 07</div>
+    <div class="q-title">El cliente pide 10 dashboards a la vez — ¿cómo decides qué construir primero?</div>
+
+    <div class="callout">
+      <span class="callout-label">Por qué se pregunta</span>
+      Evalúa <strong>pensamiento de producto y priorización con recursos limitados</strong>, no solo habilidad técnica. Es prácticamente una pregunta de gestión disfrazada de pregunta técnica — quieren ver que piensas en impacto y esfuerzo, no en orden de llegada.
+    </div>
+
+    <div class="answer-box">
+      <span class="answer-label">Tu respuesta aplicada</span>
+      "Priorizaría según qué decisión depende de cada reporte y qué tan urgente es esa decisión — por ejemplo, un reporte de seguimiento de apoyos que se presenta cada mes a la junta tiene más prioridad inmediata que un análisis exploratorio sin fecha de entrega. También identificaría qué reportes pueden construirse sobre el <strong>mismo modelo base en Power BI</strong>, para no repetir trabajo de limpieza diez veces."
+    </div>
+
+    <div class="card" style="border-color:rgba(217,112,107,0.3);">
+      <div class="card-title" style="color:var(--red);">↳ Pregunta de seguimiento</div>
+      <div class="card-body" style="font-style:italic;margin-bottom:0.6rem;">"¿Qué le dirías al cliente sobre los dashboards que quedaron al final de la lista?"</div>
+      <div class="card-body"><strong>Respuesta rápida:</strong> "Le diría: 'estos tres los tenemos listos esta semana; los siguientes cuatro los entrego el [fecha concreta] porque comparten estructura con los primeros y puedo reutilizar el modelo; los últimos tres los agendamos para después de que tú y yo revisemos si todavía tienen la misma prioridad en ese momento.' — No es un no, es un cuándo con una razón."</div>
+    </div>
+  </div>
+
+  <!-- ════════ SECTION DIVIDER: BANCO TÉCNICO EXTRA ════════ -->
+  <div class="section-divider" style="margin-top:3.5rem;">
+    <div class="section-divider-line"></div>
+    <div class="section-divider-label">Banco de preguntas — refuerzo técnico</div>
+    <div class="section-divider-line"></div>
+  </div>
+
+  <!-- ── PREGUNTA BANCO 08 (técnica · semantic layer) ── -->
+  <div class="q-block">
+    <div class="q-num">Banco 08</div>
+    <div class="q-title">¿Qué es una capa semántica (semantic layer) y por qué la necesitas?</div>
+
+    <div class="callout">
+      <span class="callout-label">Por qué se pregunta</span>
+      Evalúa si entiendes el problema real que resuelve una capa semántica: <strong>que distintas personas, en distintas herramientas, lleguen al mismo número cuando preguntan lo mismo</strong>. Es fácil confundirla con "un diccionario de datos"; quieren ver que entiendes que también es una capa de lógica de negocio reutilizable, no solo documentación.
+    </div>
+
+    <div class="answer-box">
+      <span class="answer-label">Tu respuesta aplicada</span>
+      "Una capa semántica define, en un solo lugar, qué significa una métrica o una variable — para que no se calcule distinto cada vez que alguien la usa. En mi trabajo convivo con dos: el <strong>glosario de variables de la base de origen</strong>, que me dice qué significa cada campo antes de que yo lo use, y el <strong>modelo que yo construyo en Power BI</strong>, donde defino una sola vez qué significa 'estatus de pobreza' o 'tipo de apoyo'. Cada nueva base que cargue con esa misma estructura se interpreta automáticamente igual, sin que yo ni nadie más en la Secretaría tenga que reinventar la definición cada vez."
+    </div>
+
+    <div class="card" style="border-color:rgba(217,112,107,0.3);">
+      <div class="card-title" style="color:var(--red);">↳ Pregunta de seguimiento</div>
+      <div class="card-body" style="font-style:italic;margin-bottom:0.6rem;">"¿Qué pasaría si no existiera esa capa semántica en tu organización?"</div>
+      <div class="card-body"><strong>Respuesta rápida:</strong> "Cada persona definiría la métrica a su manera dentro de su propio reporte — un área podría contar 'beneficiario activo' distinto a otra — y terminaríamos con dos números diferentes para la misma pregunta, sin que nadie sepa cuál es el correcto. La capa semántica evita exactamente esa discusión."</div>
+    </div>
+  </div>
+
+  <!-- ── PREGUNTA BANCO 09 (técnica · ETL vs ELT) ── -->
+  <div class="q-block">
+    <div class="q-num">Banco 09</div>
+    <div class="q-title">¿Qué diferencia hay entre ETL y ELT, y cuál usarías?</div>
+
+    <div class="callout">
+      <span class="callout-label">Por qué se pregunta</span>
+      Pregunta técnica clásica de Data Analyst / Analytics Engineer. No buscan la definición de manual — buscan que <strong>conectes la elección con el volumen de datos y dónde vive la capacidad de cómputo</strong>, no que la trates como una moda.
+    </div>
+
+    <div class="answer-box">
+      <span class="answer-label">Tu respuesta aplicada</span>
+      "En <strong>ETL</strong> (Extract, Transform, Load) limpio y transformo el dato antes de cargarlo — es lo que hago hoy con Excel y código sobre el CSV que recibo, porque mi volumen es manejable y necesito que el dato ya esté homologado antes de que llegue a Power BI. En <strong>ELT</strong> (Extract, Load, Transform) cargarías el dato crudo primero a un almacén con suficiente capacidad de cómputo — como un data warehouse en la nube — y transformarías después, dentro de esa misma herramienta. Usaría ELT si el volumen creciera mucho o si varias áreas necesitaran transformar el mismo dato crudo de formas distintas, porque ahí conviene separar 'guardar' de 'transformar'."
+    </div>
+
+    <div class="card" style="border-color:rgba(217,112,107,0.3);">
+      <div class="card-title" style="color:var(--red);">↳ Pregunta de seguimiento</div>
+      <div class="card-body" style="font-style:italic;margin-bottom:0.6rem;">"¿Por qué no migrarías a ELT desde ahora, si es más moderno?"</div>
+      <div class="card-body"><strong>Respuesta rápida:</strong> "Porque agregar esa infraestructura donde no hace falta es complejidad innecesaria — mi volumen actual se procesa bien con ETL tradicional. Cambiaría de enfoque cuando el costo de no tenerlo sea mayor que el costo de construirlo, no antes."</div>
+    </div>
+  </div>
+
+  <!-- ── PREGUNTA BANCO 10 (técnica · window functions) ── -->
+  <div class="q-block">
+    <div class="q-num">Banco 10</div>
+    <div class="q-title">¿Cómo calcularías una métrica acumulada o un cambio mes a mes en SQL?</div>
+
+    <div class="callout">
+      <span class="callout-label">Por qué se pregunta</span>
+      Quieren confirmar que conoces <strong>window functions</strong> (funciones de ventana) más allá de un GROUP BY simple — es una de las habilidades técnicas que más separa a un analista intermedio de uno junior en una entrevista de Data Analyst.
+    </div>
+
+    <div class="answer-box">
+      <span class="answer-label">Tu respuesta aplicada</span>
+      "Usaría una <strong>función de ventana</strong> como <code style="color:var(--cyan);">SUM() OVER (PARTITION BY ... ORDER BY ...)</code> para un acumulado, o <code style="color:var(--cyan);">LAG()</code> para comparar el valor de un mes contra el mes anterior sin perder el detalle de cada fila — a diferencia de un GROUP BY normal, que colapsa los datos. Por ejemplo, para ver cuántos beneficiarios nuevos se sumaron cada mes por municipio, partiría por municipio, ordenaría por mes, y usaría LAG() para restar el acumulado del mes anterior al del mes actual."
+    </div>
+
+    <div class="card" style="border-color:rgba(217,112,107,0.3);">
+      <div class="card-title" style="color:var(--red);">↳ Pregunta de seguimiento</div>
+      <div class="card-body" style="font-style:italic;margin-bottom:0.6rem;">"¿Por qué no simplemente usar un GROUP BY ahí?"</div>
+      <div class="card-body"><strong>Respuesta rápida:</strong> "Porque GROUP BY colapsa las filas en un solo resultado por grupo, y yo necesito conservar cada fila individual mientras le agrego ese cálculo de contexto — por ejemplo, ver cada solicitud individual junto con el acumulado del mes hasta ese punto. La función de ventana me deja hacer ambas cosas a la vez."</div>
+    </div>
+  </div>
+  </div>
+
+  <div id="tab-s5" class="tabpanel">
+    <div class="q-block">
+    <div class="q-num">Sección 5</div>
+    <div class="q-title" style="font-size:22px;">Product sense — "¿cómo medirías el éxito de...?"</div>
+    <div class="q-subtitle">Esta pregunta aparece en casi toda guía de entrevista de Google revisada, para Producto, Negocio y Data Analyst por igual. No busca un número correcto, busca tu proceso para llegar a las métricas correctas.</div>
+
+    <div class="card">
+      <div class="card-title">El marco que usan los analistas senior, según las guías</div>
+      <div class="card-body">
+        Las fuentes coinciden en un patrón: <strong>aclarar → segmentar → analizar → recomendar</strong>. Primero aclaras qué significa "éxito" para ese producto o programa específico (no asumas). Después identificas las métricas clave, organizadas en niveles: una métrica "estrella del norte" (la más importante de negocio), y métricas secundarias o de proceso que explican el por qué. Por último, conectas el número con una recomendación concreta — nunca termines solo en el número.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ejemplo típico de la pregunta — y cómo pensarla</div>
+      <div class="card-body" style="margin-bottom:0.6rem;"><strong>"¿Cómo medirías el éxito de una nueva función de Google Ads para pequeñas empresas?"</strong></div>
+      <div class="card-body">
+        No empieces respondiendo con un número. Primero aclara: ¿"éxito" significa que la usen, que genere más ingresos para Google, o que el negocio que la usa genere más ventas? Esa aclaración cambia toda la respuesta. Después, propondrías una métrica principal (ej. % de pequeñas empresas que adoptan la función en sus primeros 30 días) y métricas de respaldo (retención de uso, impacto en gasto publicitario).
+      </div>
+    </div>
+
+    <div class="card" style="border-color:rgba(217,162,75,0.3);">
+      <div class="card-title">La versión de esta pregunta aplicada a tu trabajo</div>
+      <div class="card-body" style="margin-bottom:0.6rem;"><strong>"¿Cómo medirías el éxito de un programa de apoyo social?"</strong></div>
+      <div class="card-body">
+        Aplicando el mismo marco: primero aclaras qué significa éxito — ¿que se entregue el apoyo a quien lo necesita (cobertura), que mejore su situación real (impacto), o ambos? Después defines una métrica principal — por ejemplo, "porcentaje de beneficiarios que salen de la condición de pobreza extrema en 12 meses" — y métricas de respaldo, como cobertura territorial (¿llega a todos los municipios que lo necesitan?) y velocidad de entrega (¿cuánto tarda una solicitud en convertirse en apoyo recibido?). Por último, conectas esos números con una recomendación — por ejemplo, reforzar la atención en los municipios con menor cobertura.
+      </div>
+    </div>
+
+    <div class="answer-box">
+      <span class="answer-label">Cómo lo dirías en la entrevista</span>
+      "Primero aclararía qué significa éxito para ese programa específico — cobertura, impacto real, o ambos. Después definiría una métrica principal, como el porcentaje de beneficiarios que mejoran su estatus de pobreza en un periodo definido, respaldada por métricas de proceso como cobertura territorial y tiempo de entrega del apoyo. Y terminaría conectando esos números con una recomendación concreta, no solo reportando el dato."
+    </div>
+
+    <div class="card">
+      <div class="card-title">Otras preguntas de product sense que pueden caer, con el mismo marco</div>
+      <div class="card-body">
+        <span class="tag tag-semantic">¿Cómo medirías qué tanto le gustó un video a un usuario?</span>
+        <span class="tag tag-semantic">¿Qué harías si el uso diario de una app cae 10% de repente?</span>
+        <span class="tag tag-semantic">Si fueras dueño de una floristería, ¿cómo la promocionarías con datos?</span>
+        <br><br>
+        Todas siguen el mismo patrón aclarar → segmentar → analizar → recomendar. Practica aplicarlo en voz alta con cualquiera de estas, usando ejemplos de tu propio trabajo cuando puedas conectar el paralelismo, como ya hicimos arriba.
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div id="tab-s6" class="tabpanel">
+    <div class="q-block">
+    <div class="q-num">Sección 6</div>
+    <div class="q-title" style="font-size:22px;">Simulacro completo — todo, respondido como tú</div>
+    <div class="q-subtitle">El orden en que probablemente aparecería en una entrevista real: empieza en lo concreto de tu trabajo, sube a fundamentos técnicos, y termina en pensamiento de producto. Practícalo en voz alta, en orden.</div>
+
+    <div class="card">
+      <div class="card-title">A · ¿Qué haces en tu trabajo?</div>
+      <div class="card-body">"Trabajo en la Secretaría de Igualdad e Inclusión del Gobierno de Nuevo León. Mi labor es identificar carencias socioeconómicas en la población y dar seguimiento a los apoyos que se otorgan para atenderlas. Tomo la información que se captura en campo a través de formatos socioeconómicos, la limpio y proceso con código, identifico patrones con clustering, y construyo reportes en Power BI o Looker Studio dependiendo de si es seguimiento continuo o un levantamiento urgente, como después de un desastre natural."</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">B · ¿Por qué usas Power BI en tu trabajo?</div>
+      <div class="card-body">"Porque mi trabajo necesita métricas centralizadas y consistentes a lo largo del tiempo — hago seguimiento de beneficiarios, si aumentaron, en dónde se ubican, qué apoyo tienen. Power BI me permite definir esa lógica una sola vez en un modelo y actualizar con nuevas bases que yo mismo creo con la misma estructura, sin reconstruir el reporte cada vez."</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">C · ¿Y por qué Looker Studio en otros casos?</div>
+      <div class="card-body">"Lo uso cuando necesito presentar información nueva y urgente, sin un modelo previo que reutilizar — como un levantamiento de campo después de un desastre natural, capturado con Google Forms. Conectarlo a Looker Studio es prácticamente inmediato, gratuito, y suficiente para una presentación visual rápida, sin la sobrecarga de construir un modelo semántico que en ese caso ni siquiera necesito."</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">D · ¿Cómo se mueve la información, de dónde la obtienes?</div>
+      <div class="card-body">"Viene de formatos socioeconómicos capturados en campo, a través de una plataforma construida sobre VIA, el sistema de diseño web del estado. Se almacena en una base con su propio glosario de variables, y otra Secretaría —la de Tecnología— la pone disponible para descarga en CSV. De ahí la paso a Excel y código para limpiarla antes de analizarla."</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">E · ¿Hay una capa semántica? ¿Qué tipo se emplearía para cada caso?</div>
+      <div class="card-body">"Sí, hay dos. Una viene dada desde el origen: el glosario de variables de la base de datos, que define el significado de cada campo antes de que yo lo use. La otra la construyo yo en Power BI, al definir una sola vez qué significan mis métricas de seguimiento, para que cada nueva base que cargue con la misma estructura se interprete automáticamente igual."</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">F · ¿Cómo decides si un cliente necesita SQL o NoSQL?</div>
+      <div class="card-body">"Le preguntaría qué tipo de información maneja: si todos sus registros tienen la misma forma y necesita cruzarlos con precisión —como un negocio de tuberías con tarifas por cliente— usaría SQL. Si cada registro es distinto entre sí y lo que más importa es la velocidad a gran escala —como un chat donde cada mensaje puede ser texto, foto o video— usaría NoSQL."</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">G · ¿Cómo manejarías datos faltantes en un análisis socioeconómico?</div>
+      <div class="card-body">"No los relleno con cero ni con un promedio, porque en datos sociales un campo vacío casi siempre significa algo real —por ejemplo, que la persona no tiene empleo formal. Lo dejo como dato faltante explícito y lo reporto aparte, para no distorsionar cálculos como el estatus de pobreza."</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">H · Dos fuentes de datos no coinciden — ¿qué haces?</div>
+      <div class="card-body">"Primero reviso si hubo un corte de fecha distinto entre cuándo se descargó cada archivo, después si hay duplicados de personas con más de una solicitud, y solo al final asumo que hay un error real de captura. Nunca confío en el número más alto sin antes entender la diferencia."</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">I · ¿Cómo sabrías si un programa de apoyo realmente está funcionando, y no es solo coincidencia?</div>
+      <div class="card-body">"Compararía cómo cambiaron los beneficiarios que recibieron el apoyo contra un grupo similar que no lo recibió, en el mismo periodo — no solo el antes y después del mismo grupo, porque otros factores externos, como una mejora general en la economía, también pudieron influir al mismo tiempo."</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">J · ¿Cómo evitas que dos equipos calculen la misma métrica de forma distinta?</div>
+      <div class="card-body">"Centralizo la lógica de mis métricas en el modelo de Power BI en lugar de calcularlas distinto en cada reporte, y reviso el glosario original de la base de datos cada vez que cargo información nueva, para que mi definición no se desalinee con la fuente."</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">K · ¿Cómo medirías el éxito de un programa de apoyo social?</div>
+      <div class="card-body">"Primero aclararía qué significa éxito para ese programa específico — cobertura, impacto real, o ambos. Después definiría una métrica principal, como el porcentaje de beneficiarios que mejoran su estatus de pobreza en un periodo definido, respaldada por métricas de proceso como cobertura territorial y tiempo de entrega del apoyo. Y terminaría conectando esos números con una recomendación concreta, no solo reportando el dato."</div>
+    </div>
+
+    <div class="card" style="border-color:rgba(217,162,75,0.3);">
+      <div class="card-title">L · Cuéntame de una vez que tomaste una decisión basada en datos que resultó equivocada</div>
+      <div class="answer-box" style="border-left-color:var(--amber);margin:0;"><strong>Pendiente de completar con tu ejemplo real</strong> — usa el formato Situación / Tarea / Acción / Resultado del Banco 06 más arriba. Esta es la única respuesta que no puedo escribir por ti, porque necesita ser un caso genuino tuyo para sonar honesto en la entrevista.</div>
+    </div>
+  </div>
+  </div>
+
+  <div class="footnote">Guía de entrevista personal — basada en tu trabajo real en la Secretaría de Igualdad e Inclusión, Gobierno de Nuevo León.</div>
+
+</div>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.tabpanel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tabnav button').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
